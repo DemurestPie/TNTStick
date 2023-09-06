@@ -38,7 +38,6 @@ public final class TNTStick extends JavaPlugin implements Listener {
 
         org.bukkit.entity.Sheep sheep = player.getWorld().spawn(player.getEyeLocation().add(direction), org.bukkit.entity.Sheep.class);
         sheep.setColor(DyeColor.PINK);
-        sheep.setHealth(40.0);
         tnt.addPassenger(sheep);
 
         tnt.setYield(20.0f);
