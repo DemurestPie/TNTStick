@@ -1,0 +1,4 @@
+name: TNTStick
+version: '${version}'
+main: com.demurestpie.tntstick.TNTStick
+api-version: '1.20'
