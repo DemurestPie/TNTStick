@@ -1,9 +1,11 @@
 package com.demurestpie.tntstick;
 
+import com.demurestpie.tntstick.commands.TntAmountCommand;
+import com.demurestpie.tntstick.commands.TntSizeCommand;
+import com.demurestpie.tntstick.commands.TntStickCommand;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
@@ -18,38 +20,49 @@ import java.util.Random;
 
 public final class TNTStick extends JavaPlugin implements Listener {
 
+    public static int tntAmount = 10;
+    public static float tntSize = 10.0f;
     @Override
     public void onEnable() {
+        // Plugin startup logic
         getServer().getPluginManager().registerEvents(this, this);
+        Objects.requireNonNull(this.getCommand("tntstick")).setExecutor(new TntStickCommand());
+        Objects.requireNonNull(this.getCommand("tntamount")).setExecutor(new TntAmountCommand());
+        Objects.requireNonNull(this.getCommand("tntsize")).setExecutor(new TntSizeCommand());
     }
     @EventHandler
     public void onInteractEvent(PlayerInteractEvent event)
     {
+        // Get player and item in hand
         Player player = event.getPlayer();
         ItemStack item = new ItemStack(player.getInventory().getItemInMainHand());
 
-        if (event.getAction().isLeftClick() && item.getType() == Material.FIRE_CHARGE) {
-            launchCharge(player);
-        }
-
-        if (item.getType() == Material.STICK)
-        {
+        // Check if item has been named
+        if (item.getItemMeta().displayName() != null) {
+            // Get item name
             String itemName = PlainTextComponentSerializer.plainText().serialize(Objects.requireNonNull(item.getItemMeta().displayName()));
-            if (itemName.equals("bazooka")) {
+            if (itemName.equals("TNT Stick")) {
 
+                // If player left clicks, launch primed tnt
                 if (event.getAction().isLeftClick()) {
                     launchTNT(player);
                 }
 
+                // If player right clicks, launch falling tnt blocks
                 if (event.getAction().isRightClick()) {
                     launchTntBlock(player);
                 }
             }
         }
     }
+
+    /**
+     * Launches 10 primed tnt in a spread in player's looking direction
+     * @param player Player
+     */
     private void launchTNT(Player player) {
 
-        for (short i = 0; i < 10; i++) {
+        for (short i = 0; i < tntAmount; i++) {
             // Set min and max variability
             double min = -0.25;
             double max = 0.25;
@@ -64,15 +77,18 @@ public final class TNTStick extends JavaPlugin implements Listener {
 
             // Spawn tnt
             TNTPrimed tnt = player.getWorld().spawn(player.getEyeLocation().add(direction), org.bukkit.entity.TNTPrimed.class);
-            System.out.println(direction);
-            tnt.setYield(15.0f);
+            tnt.setYield(tntSize);
             tnt.setVelocity(direction.multiply(3));
         }
     }
 
+    /**
+     * Launches 10 falling tnt blocks in a spread in player's looking direction
+     * @param player Player
+     */
     private void launchTntBlock(Player player) {
 
-        for (short i = 0; i < 10; i++) {
+        for (short i = 0; i < tntAmount; i++) {
             // Set min and max variability
             double min = -0.25;
             double max = 0.25;
@@ -85,7 +101,8 @@ public final class TNTStick extends JavaPlugin implements Listener {
             // Create randomized vectors for tnt spread
             Vector direction = vectorRandomizer(min, max, x, y, z);
 
-            FallingBlock block = player.getEyeLocation().getWorld().spawnFallingBlock(player.getEyeLocation(), Material.TNT, (byte) 0);
+            // Spawn tnt
+            FallingBlock block = player.getEyeLocation().getWorld().spawnFallingBlock(player.getEyeLocation().add(direction), Material.TNT.createBlockData());
             block.setVelocity(direction.multiply(3));
         }
     }
@@ -101,17 +118,11 @@ public final class TNTStick extends JavaPlugin implements Listener {
      */
     public Vector vectorRandomizer(double min, double max, double x, double y, double z) {
         Random random = new Random();
-        max *= 2;
+        max *= 2; // Multiply max by 2 to make it inclusive
         double randomX = (min + (max * random.nextDouble()) + x);
         double randomY = (min + (max * random.nextDouble()) + y);
         double randomZ = (min + (max * random.nextDouble()) + z);
 
         return new Vector(randomX, randomY, randomZ);
-    }
-
-    private void launchCharge(Player player) {
-        Vector direction = player.getEyeLocation().getDirection();
-        Fireball fireball = player.getWorld().spawn(player.getEyeLocation().add(direction), Fireball.class);
-        fireball.setYield(20.0f);
     }
 }
