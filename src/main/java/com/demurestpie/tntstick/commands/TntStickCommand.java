@@ -14,19 +14,16 @@ public class TntStickCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        // Check if sender is a player
         if (!(sender instanceof Player player)) {
             sender.sendMessage("Only players can use this command!");
             return false;
         }
 
-        // Check if user has permission
         if (!sender.hasPermission("tntstick.tntstick")) {
             sender.sendMessage("You do not have permission to use this command!");
             return false;
         }
 
-        // Gives player a tnt stick
         ItemStack item = new ItemStack(Material.STICK);
         ItemMeta meta = item.getItemMeta();
         meta.displayName(PlainTextComponentSerializer.plainText().deserialize("TNT Stick"));

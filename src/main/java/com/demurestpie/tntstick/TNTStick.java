@@ -24,7 +24,6 @@ public final class TNTStick extends JavaPlugin implements Listener {
     public static float tntSize = 10.0f;
     @Override
     public void onEnable() {
-        // Plugin startup logic
         getServer().getPluginManager().registerEvents(this, this);
         Objects.requireNonNull(this.getCommand("tntstick")).setExecutor(new TntStickCommand());
         Objects.requireNonNull(this.getCommand("tntamount")).setExecutor(new TntAmountCommand());
@@ -33,34 +32,31 @@ public final class TNTStick extends JavaPlugin implements Listener {
     @EventHandler
     public void onInteractEvent(PlayerInteractEvent event)
     {
-        // Get player and item in hand
         Player player = event.getPlayer();
         ItemStack item = new ItemStack(player.getInventory().getItemInMainHand());
 
-        // Check if item has been named
         if (item.getItemMeta().displayName() != null) {
-            // Get item name
+
             String itemName = PlainTextComponentSerializer.plainText().serialize(Objects.requireNonNull(item.getItemMeta().displayName()));
+
             if (itemName.equals("TNT Stick")) {
 
-                // If player left clicks, launch primed tnt
                 if (event.getAction().isLeftClick()) {
-                    launchTNT(player);
+                    launchPrimedTNT(player);
                 }
 
-                // If player right clicks, launch falling tnt blocks
                 if (event.getAction().isRightClick()) {
-                    launchTntBlock(player);
+                    launchFallingTnt(player);
                 }
             }
         }
     }
 
     /**
-     * Launches 10 primed tnt in a spread in player's looking direction
+     * Launches primed tnt in a spread in player's looking direction
      * @param player Player
      */
-    private void launchTNT(Player player) {
+    private void launchPrimedTNT(Player player) {
 
         for (short i = 0; i < tntAmount; i++) {
             // Set min and max variability
@@ -83,10 +79,10 @@ public final class TNTStick extends JavaPlugin implements Listener {
     }
 
     /**
-     * Launches 10 falling tnt blocks in a spread in player's looking direction
+     * Launches falling tnt blocks in a spread in player's looking direction
      * @param player Player
      */
-    private void launchTntBlock(Player player) {
+    private void launchFallingTnt(Player player) {
 
         for (short i = 0; i < tntAmount; i++) {
             // Set min and max variability
